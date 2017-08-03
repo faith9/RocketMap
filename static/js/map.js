@@ -1690,11 +1690,11 @@ function processGym(i, item) {
             }
         }
 
-        if (Store.get('showRaidPokemon') > 0 && raidPokemon != Store.get('showRaidPokemon')) {
+        if (Store.get('showRaidPokemon') > 0 && raidPokemon !== Store.get('showRaidPokemon')) {
             removeGymFromMap(item['gym_id'])
             return true
         }
-        
+
         if (raidLevel > Store.get('showRaidMaxLevel') || raidLevel < Store.get('showRaidMinLevel')) {
             removeGymFromMap(item['gym_id'])
             return true
@@ -2354,7 +2354,7 @@ $(function () {
         lastgyms = false
         updateMap()
     })
-    
+
     $switchRaidPokemon = $('#raid-pokemon-only-switch')
 
     $switchRaidPokemon.select2({
