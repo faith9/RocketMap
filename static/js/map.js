@@ -92,6 +92,13 @@ var notifyNoIvTitle = '<pkm>'
  */
 var notifyText = 'disappears at <dist> (<udist>)'
 
+
+if (!Date.now) {
+    Date.now = function() { return new Date().getTime(); }
+}
+
+var last_time_gyms_updated =  Date.now();
+
 //
 // Functions
 //
@@ -1082,16 +1089,39 @@ function setupGymMarker(item) {
     return marker
 }
 
+function getTimeLeft(end){
+	//1502462401000
+	var e = parseInt(end,10);
+	var d = new Date();
+	var n = d.getTime();
+	var milisecs = end-d;
+	var hours = Math.floor(milisecs/1000/3600);
+	var minutes = Math.floor((milisecs - hours*1000 * 3600)/1000/60);
+	var m = '' + minutes;
+	var h = '' ;
+	var result = '_';
+	if (hours>0) {
+		h = hours+'h';
+		if (minutes<10)
+			m = '0'+m;
+	}
+	result = '_'+h+m;
+	
+	//return '_1h20';
+	return result;
+}
+
 function updateGymMarker(item, marker) {
     let raidLevel = getRaidLevel(item.raid)
     const pokemonWithImages = [
         3, 6, 9, 59, 65, 68, 89, 94, 103, 110, 112, 125, 126, 129, 131, 134,
         135, 136, 143, 144, 145, 146, 153, 156, 159, 248, 249
     ]
+	var left=getTimeLeft(item['raid']['end']);
     if (item.raid !== null && isOngoingRaid(item.raid) && Store.get('showRaids') && raidLevel >= Store.get('showRaidMinLevel') && raidLevel <= Store.get('showRaidMaxLevel')) {
         let markerImage = 'static/images/raid/' + gymTypes[item.team_id] + '_' + item.raid.level + '_unknown.png'
         if (pokemonWithImages.indexOf(item.raid.pokemon_id) !== -1) {
-            markerImage = 'static/images/raid/' + gymTypes[item.team_id] + '_' + item['raid']['pokemon_id'] + '.png'
+            markerImage = 'static/images/times/' + gymTypes[item.team_id] + '_' + item['raid']['pokemon_id'] + left + '.png'
         }
         marker.setIcon({
             url: markerImage,
@@ -1101,7 +1131,7 @@ function updateGymMarker(item, marker) {
     } else if (item.raid !== null && item.raid.end > Date.now() && Store.get('showRaids') && !Store.get('showActiveRaidsOnly') && raidLevel >= Store.get('showRaidMinLevel') && raidLevel <= Store.get('showRaidMaxLevel')) {
         marker.setIcon({
             url: 'static/images/gym/' + gymTypes[item.team_id] + '_' + getGymLevel(item) + '_' + item['raid']['level'] + '.png',
-            scaledSize: new google.maps.Size(48, 48)
+            scaledSize: new google.maps.Size(48, 63)
         })
     } else {
         marker.setIcon({
@@ -1783,6 +1813,12 @@ function updateSpawnPoints() {
 }
 
 function updateMap() {
+    
+	if (Date.now()-last_time_gyms_updated> (1000 * 60)){
+		last_time_gyms_updated = Date.now();
+		lastgyms = false;
+	}
+    
     loadRawData().done(function (result) {
         processPokemons(result.pokemons)
         $.each(result.pokestops, processPokestop)
