@@ -1121,7 +1121,7 @@ function updateGymMarker(item, marker) {
     if (item.raid !== null && isOngoingRaid(item.raid) && Store.get('showRaids') && raidLevel >= Store.get('showRaidMinLevel') && raidLevel <= Store.get('showRaidMaxLevel')) {
         let markerImage = 'static/images/raid/' + gymTypes[item.team_id] + '_' + item.raid.level + '_unknown.png'
         if (pokemonWithImages.indexOf(item.raid.pokemon_id) !== -1) {
-            markerImage = 'http://assets.raids.tk/' + gymTypes[item.team_id] + '_' + item['raid']['pokemon_id'] + left + '.png'
+            markerImage = 'http://assets.raids.tk/timers/' + gymTypes[item.team_id] + '_' + item['raid']['pokemon_id'] + left + '.png'
         }
         marker.setIcon({
             url: markerImage,
