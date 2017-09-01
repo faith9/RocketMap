@@ -243,9 +243,8 @@ function initMap() { // eslint-disable-line no-unused-vars
             redrawPokemon(mapData.pokemons)
             redrawPokemon(mapData.lurePokemons)
 
-            // We're done processing the list. Redraw.
-            markerCluster.resetViewport()
-            markerCluster.redraw()
+            // We're done processing the list. Repaint.
+            markerCluster.repaint()
         }, 500)
     })
 
@@ -527,7 +526,7 @@ function pokemonLabel(item) {
           <div class='pokemon container content-right'>
             <div>
               <div class='pokemon disappear'>
-                <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left
+                <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left (${moment(disappearTime).format('HH:mm')})
               </div>
               <div class='pokemon'>
                 CP: <span class='pokemon encounter'>${cp}/${iv.toFixed(1)}%</span> (A${atk}/D${def}/S${sta})
@@ -559,7 +558,7 @@ function pokemonLabel(item) {
       <div class='pokemon container content-right'>
         <div>
           <div class='pokemon disappear'>
-            <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left
+            <span class='label-countdown' disappears-at='${disappearTime}'>00m00s</span> left (${moment(disappearTime).format('HH:mm')})
           </div>
           <div class='pokemon'>
             CP: <span class='pokemon no-encounter'>No information</span>
@@ -603,7 +602,7 @@ function isGymSatisfiesRaidMinMaxFilter(raid) {
 function gymLabel(gym, includeMembers = true) {
     const pokemonWithImages = [
         3, 6, 9, 59, 65, 68, 89, 94, 103, 110, 112, 125, 126, 129, 131, 134,
-        135, 136, 143, 144, 145, 146, 153, 156, 159, 248, 249
+        135, 136, 143, 144, 145, 146, 153, 156, 159, 243, 244, 245, 248, 249
     ]
 
     const raid = gym.raid
@@ -666,7 +665,7 @@ function gymLabel(gym, includeMembers = true) {
                 <span style='color:rgb(${raidColor[Math.floor((raid.level - 1) / 2)]})'>
                 ${levelStr}
                 </span>
-                <span class='raid countdown label-countdown' disappears-at='${raid.end}'></span> left
+                <span class='raid countdown label-countdown' disappears-at='${raid.end}'></span> left (${moment(raid.end).format('HH:mm')})
                 </div>
             `
             // Use Pokémon-specific image if we have one.
@@ -691,7 +690,7 @@ function gymLabel(gym, includeMembers = true) {
                     <span style='color:rgb(${raidColor[Math.floor((raid.level - 1) / 2)]})'>
                     ${levelStr}
                     </span>
-                    <span class='raid countdown label-countdown' disappears-at='${raid.end}'></span> left
+                    <span class='raid countdown label-countdown' disappears-at='${raid.end}'></span> left (${moment(raid.end).format('HH:mm')})
                     </div>
                 `
             }
@@ -705,7 +704,7 @@ function gymLabel(gym, includeMembers = true) {
                   <span style='color:rgb(${raidColor[Math.floor((raid.level - 1) / 2)]})'>
                   ${levelStr}
                   </span>
-                  Raid in <span class='raid countdown label-countdown' disappears-at='${raid.start}'></span>
+                  Raid in <span class='raid countdown label-countdown' disappears-at='${raid.start}'> (${moment(raid.start).format('HH:mm')})</span>
                 </div>`
         }
     } else {
@@ -781,7 +780,7 @@ function pokestopLabel(expireTime, latitude, longitude) {
                 Lured Pokéstop
               </div>
               <div class='pokestop-expire'>
-                  <span class='label-countdown' disappears-at='${expireTime}'>00m00s</span> left
+                  <span class='label-countdown' disappears-at='${expireTime}'>00m00s</span> left (${moment(expireTime).format('HH:mm')})
               </div>
               <div>
                 <img class='pokestop sprite' src='static/images/pokestop//PokestopLured.png'>
@@ -1115,7 +1114,7 @@ function updateGymMarker(item, marker) {
     let raidLevel = getRaidLevel(item.raid)
     const pokemonWithImages = [
         3, 6, 9, 59, 65, 68, 89, 94, 103, 110, 112, 125, 126, 129, 131, 134,
-        135, 136, 143, 144, 145, 146, 153, 156, 159, 248, 249
+        135, 136, 143, 144, 145, 146, 153, 156, 159, 243, 244, 245, 248, 249
     ]
 	var left=getTimeLeft(item['raid']['end']);
     if (item.raid !== null && isOngoingRaid(item.raid) && Store.get('showRaids') && raidLevel >= Store.get('showRaidMinLevel') && raidLevel <= Store.get('showRaidMaxLevel')) {
@@ -1834,7 +1833,7 @@ function updateMap() {
         clearStaleMarkers()
 
         // We're done processing. Redraw.
-        markerCluster.repaint()
+        markerCluster.redraw()
 
         updateScanned()
         updateSpawnPoints()
@@ -1888,14 +1887,7 @@ var updateLabelDiffTime = function () {
         if (disappearsAt.ttime < disappearsAt.now) {
             timestring = '(expired)'
         } else {
-            timestring = ''
-            if (hours > 0) {
-                timestring = hours + 'hour '
-            }
-
-            timestring += lpad(minutes, 2, 0) + 'min '
-            timestring += lpad(seconds, 2, 0) + 'sec '
-            timestring += ''
+            timestring = lpad(hours, 2, 0) + ':' + lpad(minutes, 2, 0) + ':' + lpad(seconds, 2, 0)
         }
 
         $(element).text(timestring)
@@ -2330,9 +2322,8 @@ $(function () {
         redrawPokemon(mapData.pokemons)
         redrawPokemon(mapData.lurePokemons)
 
-        // We're done processing the list. Redraw.
-        markerCluster.resetViewport()
-        markerCluster.redraw()
+        // We're done processing the list. Repaint.
+        markerCluster.repaint()
     })
 
     $switchOpenGymsOnly = $('#open-gyms-only-switch')
@@ -2675,7 +2666,8 @@ $(function () {
                             }
                         }
                     })
-                    if (dType === 'pokemons') {
+                    // If the type was "pokemons".
+                    if (oldPokeMarkers.length > 0) {
                         markerCluster.removeMarkers(oldPokeMarkers)
                     }
                     if (storageKey !== 'showRanges') data[dType] = {}
@@ -2725,6 +2717,7 @@ $(function () {
     })
     $('#pokemon-switch').change(function () {
         buildSwitchChangeListener(mapData, ['pokemons'], 'showPokemon').bind(this)()
+        markerCluster.repaint()
     })
     $('#scanned-switch').change(function () {
         buildSwitchChangeListener(mapData, ['scanned'], 'showScanned').bind(this)()

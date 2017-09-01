@@ -15,7 +15,6 @@ from datetime import timedelta
 from collections import OrderedDict
 from bisect import bisect_left
 
-from . import config
 from .models import (Pokemon, Gym, Pokestop, ScannedLocation,
                      MainWorker, WorkerStatus, Token, HashKeys,
                      SpawnPoint)
@@ -76,9 +75,14 @@ class Pogom(Flask):
 
     def render_inject_js(self):
         args = get_args()
-        return render_template('inject.js',
-                               domain=args.manual_captcha_domain,
-                               timer=args.manual_captcha_refresh)
+        src = render_template('inject.js',
+                              domain=args.manual_captcha_domain,
+                              timer=args.manual_captcha_refresh)
+
+        response = make_response(src)
+        response.headers['Content-Type'] = 'application/javascript'
+
+        return response
 
     def submit_token(self):
         response = 'error'
@@ -182,8 +186,8 @@ class Pogom(Flask):
         return render_template('map.html',
                                lat=map_lat,
                                lng=map_lng,
-                               gmaps_key=config['GMAPS_KEY'],
-                               lang=config['LOCALE'],
+                               gmaps_key=args.gmaps_key,
+                               lang=args.locale,
                                show=visibility_flags
                                )
 
@@ -557,7 +561,7 @@ class Pogom(Flask):
         return render_template('statistics.html',
                                lat=self.current_location[0],
                                lng=self.current_location[1],
-                               gmaps_key=config['GMAPS_KEY'],
+                               gmaps_key=args.gmaps_key,
                                valid_input=self.get_valid_stat_input(),
                                show=visibility_flags
                                )
