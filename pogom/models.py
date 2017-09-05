@@ -2365,7 +2365,8 @@ def encounter_pokemon(args, pokemon, account, api, account_sets, status,
         # If we didn't get an account, we can't encounter.
         if not hlvl_account:
             log.error('No L30 accounts are available, please' +
-                      ' consider adding more. Skipping encounter.')
+                      ' consider adding more. Skipping encounter with Pokemon ID %s at %s, %s.',pokemon_id, scan_location[0],
+                 scan_location[1])
             return False
 
         # Logging.
