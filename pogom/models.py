@@ -107,6 +107,7 @@ class Pokemon(BaseModel):
     # We are base64 encoding the ids delivered by the api
     # because they are too big for sqlite to handle.
     encounter_id = Utf8mb4CharField(primary_key=True, max_length=50)
+    pokemon_worker = Utf8mb4CharField(null=True, max_length=50)
     spawnpoint_id = Utf8mb4CharField(index=True)
     pokemon_id = SmallIntegerField(index=True)
     latitude = DoubleField()
@@ -429,6 +430,7 @@ class Pokestop(BaseModel):
 
 class Gym(BaseModel):
     gym_id = Utf8mb4CharField(primary_key=True, max_length=50)
+    gym_worker = Utf8mb4CharField(null=True, max_length=50)
     team_id = SmallIntegerField()
     guard_pokemon_id = SmallIntegerField()
     slots_available = SmallIntegerField()
@@ -629,6 +631,7 @@ class Gym(BaseModel):
 
 class Raid(BaseModel):
     gym_id = Utf8mb4CharField(primary_key=True, max_length=50)
+    raid_worker = Utf8mb4CharField(null=True, max_length=50)
     level = IntegerField(index=True)
     spawn = DateTimeField(index=True)
     start = DateTimeField(index=True)
@@ -2019,6 +2022,7 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
 
             pokemon[p.encounter_id] = {
                 'encounter_id': b64encode(str(p.encounter_id)),
+                'pokemon_worker': status['worker_name'],
                 'spawnpoint_id': p.spawn_point_id,
                 'pokemon_id': pokemon_id,
                 'latitude': p.latitude,
@@ -2183,6 +2187,8 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                 gyms[f.id] = {
                     'gym_id':
                         f.id,
+                    'gym_worker':
+                        status['worker_name'],
                     'team_id':
                         f.owned_by_team,
                     'guard_pokemon_id':
@@ -2206,6 +2212,7 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                     if f.HasField('raid_info'):
                         raids[f.id] = {
                             'gym_id': f.id,
+                            'raid_worker': status['worker_name'],
                             'level': raid_info.raid_level,
                             'spawn': datetime.utcfromtimestamp(
                                 raid_info.raid_spawn_ms / 1000.0),
