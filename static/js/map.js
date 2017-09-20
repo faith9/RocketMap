@@ -134,6 +134,7 @@ function initMap() { // eslint-disable-line no-unused-vars
             lng: Number(getParameterByName('lon')) || centerLng
         },
         zoom: Number(getParameterByName('zoom')) || Store.get('zoomLevel'),
+        gestureHandling: 'greedy',
         fullscreenControl: true,
         streetViewControl: false,
         mapTypeControl: false,
@@ -429,6 +430,7 @@ function initSidebar() {
     $('#sound-switch').prop('checked', Store.get('playSound'))
     $('#pokemoncries').toggle(Store.get('playSound'))
     $('#cries-switch').prop('checked', Store.get('playCries'))
+    $('#map-service-provider').val(Store.get('mapServiceProvider'))
 
     // Only create the Autocomplete element if it's enabled in template.
     var elSearchBox = document.getElementById('next-location')
@@ -460,8 +462,14 @@ function getTypeSpan(type) {
 }
 
 function openMapDirections(lat, lng) { // eslint-disable-line no-unused-vars
-    var url = 'https://www.google.com/maps/?daddr=' + lat + ',' + lng
-    window.open(url, '_blank')
+    var url = ''
+    if (Store.get('mapServiceProvider') === 'googlemaps') {
+        url = 'https://www.google.com/maps/?daddr=' + lat + ',' + lng
+        window.open(url, '_blank')
+    } else if (Store.get('mapServiceProvider') === 'applemaps') {
+        url = 'https://maps.apple.com/maps?daddr=' + lat + ',' + lng
+        window.open(url, '_self')
+    }
 }
 
 // Converts timestamp to readable String
@@ -2296,6 +2304,7 @@ $(function () {
     /* If push.js is unsupported or disabled, fall back to toastr
      * notifications. */
     Push.config({
+        serviceWorker: 'serviceWorker.min.js',
         fallback: function (notification) {
             sendToastrPokemonNotification(
                 notification.title,
@@ -2339,6 +2348,19 @@ $(function () {
 
         // recall saved mapstyle
         $selectStyle.val(Store.get('map_style')).trigger('change')
+    })
+
+    var mapServiceProvider = $('#map-service-provider')
+
+    mapServiceProvider.select2({
+        placeholder: 'Select map provider',
+        data: ['googlemaps', 'applemaps'],
+        minimumResultsForSearch: Infinity
+    })
+
+    mapServiceProvider.on('change', function (e) {
+        var selectedVal = mapServiceProvider.val()
+        Store.set('mapServiceProvider', selectedVal)
     })
 
     $selectIconSize = $('#pokemon-icon-size')

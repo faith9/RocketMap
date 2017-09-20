@@ -1025,6 +1025,10 @@ var StoreOptions = {
     'processPokemonIntervalMs': {
         default: 100,
         type: StoreTypes.Number
+    },
+    'mapServiceProvider': {
+        default: 'googlemaps',
+        type: StoreTypes.String
     }
 }
 
