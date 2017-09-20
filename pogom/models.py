@@ -1152,7 +1152,8 @@ class WorkerStatus(BaseModel):
 
 
 class SpawnPoint(BaseModel):
-    id = Utf8mb4CharField(primary_key=True, max_length=50)
+    id = Utf8mb4CharField(primary_key=True, max_length=50)    
+    spawnpoint_worker =  Utf8mb4CharField(null=True, max_length=50)
     latitude = DoubleField()
     longitude = DoubleField()
     last_scanned = DateTimeField(index=True)
@@ -1937,6 +1938,7 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
                                       p.longitude)
             spawn_points[p.spawn_point_id] = sp
             sp['missed_count'] = 0
+            sp['spawnpoint_worker'] = status['worker_name'];
 
             sighting = {
                 'id': b64encode(str(p.encounter_id)) + '_' + str(now_secs),
@@ -2291,6 +2293,7 @@ def parse_map(args, map_dict, step_location, db_update_queue, wh_update_queue,
             endpoints = SpawnPoint.start_end(sp, args.spawn_delay)
             if clock_between(endpoints[0], now_secs, endpoints[1]):
                 sp['missed_count'] += 1
+                sp['spawnpoint_worker'] = status['worker_name'];
                 spawn_points[sp['id']] = sp
                 log.warning('%s kind spawnpoint %s has no Pokemon %d times'
                             ' in a row.',
